@@ -14,6 +14,7 @@ using ApPet.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using ApPet.Services.Schemas;
 
 namespace ApPet
 {
@@ -55,6 +56,7 @@ namespace ApPet
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<JsonSchemas>(Configuration);
 
             services.AddMvc();
         }

@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
+using ApPet.Services.Schemas;
 
 namespace ApPet.Controllers
 {
@@ -22,15 +24,18 @@ namespace ApPet.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IOptions<JsonSchemas> _schemas;
 
         public HomeController(
           SignInManager<ApplicationUser> signInManager,
           UserManager<ApplicationUser> userManager,
-          IConfiguration configuration)
+          IConfiguration configuration,
+          IOptions<JsonSchemas> schemas)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _schemas = schemas;
         }
 
         public IActionResult Index()
@@ -45,8 +50,7 @@ namespace ApPet.Controllers
         }
         
         public IActionResult Contact()
-        {
-            
+        {            
             ViewData["Message"] = "Your contact page.";
 
             return View();
