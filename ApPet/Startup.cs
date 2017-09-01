@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -14,7 +10,6 @@ using ApPet.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using ApPet.Services.Schemas;
 
 namespace ApPet
 {
@@ -44,9 +39,8 @@ namespace ApPet
               {
                   cfg.RequireHttpsMetadata = false;
                   cfg.SaveToken = true;
-
                   cfg.TokenValidationParameters = new TokenValidationParameters()
-                  {
+                  {                      
                       ValidIssuer = Configuration["Tokens:Issuer"],
                       ValidAudience = Configuration["Tokens:Issuer"],
                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"]))
@@ -56,7 +50,8 @@ namespace ApPet
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
-            services.Configure<JsonSchemas>(Configuration);
+            services.Configure<JwtSettings>(options => Configuration.GetSection("JwtSetting").Bind(options));
+            services.Configure<AccountSchemas>(options => Configuration.GetSection("AccountSchemas").Bind(options));
 
             services.AddMvc();
         }

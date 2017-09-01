@@ -1,27 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ApPet.Models;
 using ApPet.Models.AccountViewModels;
 using ApPet.Services;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Principal;
 
 namespace ApPet.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]
-    public class AccountController : Controller
+    public partial class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IConfiguration _configuration;
+        private readonly IOptions<AccountSchemas> _schemas;
+        private readonly IOptions<JwtSettings> _jwtSettings;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
 
@@ -29,12 +34,18 @@ namespace ApPet.Controllers
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IConfiguration configuration,
+            IOptions<AccountSchemas> schemas,
+            IOptions<JwtSettings> jwtSettings)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
+            _configuration = configuration;
+            _schemas = schemas;
+            _jwtSettings = jwtSettings;
         }
 
         [TempData]
@@ -437,7 +448,105 @@ namespace ApPet.Controllers
             return View();
         }
 
+        #region Jwt Bearer 
+
+        [AllowAnonymous]
+        [HttpPost("/jwt/login")]
+        public async Task<IActionResult> LogInWithJwt(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+                    if (result.Succeeded)
+                    {
+                        var claims = await _userManager.GetClaimsAsync(user);
+                        var jwt = GenerateToken(new ClaimsIdentity(new GenericIdentity(user.UserName, "Token")), user.UserName);
+                        return Ok(jwt);
+                    }
+                }
+            }
+
+            return BadRequest("Could not create token");
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("/jwt/signin")]
+        public async Task<IActionResult> SignInWithJwt(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+                    await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+
+                    var claims = await _userManager.GetClaimsAsync(user);
+                    var jwt = GenerateToken(new ClaimsIdentity(new GenericIdentity(user.UserName, "Token")), user.UserName);
+                    _logger.LogInformation("User created a new account with password.");
+                    return Ok(jwt);
+                }
+                AddErrors(result);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        private Token GenerateToken(ClaimsIdentity identity, string sub)
+        {
+            var now = DateTime.UtcNow;
+            var expiration = TimeSpan.FromMinutes(5);
+
+            var claims = new Claim[]
+               {
+                    new Claim(JwtRegisteredClaimNames.Sub, sub),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(now).ToString(), ClaimValueTypes.Integer64)
+               };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Value.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            identity.AddClaims(claims);
+
+            // Create the JWT and write it to a string
+            var token = new JwtSecurityToken(
+                _jwtSettings.Value.Issuer,
+              _jwtSettings.Value.Audience,
+              claims,
+              notBefore: now,
+              expires: now.Add(expiration),
+              signingCredentials: creds);
+
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return new Token
+            {
+                token = encodedJwt,
+                expires = (int)expiration.TotalSeconds
+            };
+        }
+        
+        private static double ToUnixEpochDate(DateTime now)
+        {
+            var dateTime = new DateTime(now.Ticks, DateTimeKind.Local);
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return (dateTime.ToUniversalTime() - epoch).TotalSeconds;
+        }
+        #endregion
+
         #region Helpers
+
+        private 
 
         private void AddErrors(IdentityResult result)
         {
