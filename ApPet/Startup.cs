@@ -10,6 +10,7 @@ using ApPet.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ApPet
 {
@@ -31,22 +32,24 @@ namespace ApPet
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-            
+
             // Enable Dual Authentication 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-              .AddCookie()
+            services.AddAuthentication(cfg =>
+            {
+                cfg.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+              .AddCookie(cfg => cfg.SlidingExpiration = true)
               .AddJwtBearer(cfg =>
               {
                   cfg.RequireHttpsMetadata = false;
                   cfg.SaveToken = true;
                   cfg.TokenValidationParameters = new TokenValidationParameters()
-                  {                      
-                      ValidIssuer = Configuration["Tokens:Issuer"],
-                      ValidAudience = Configuration["Tokens:Issuer"],
-                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"]))
+                  {
+                      ValidIssuer = Configuration["JwtSetting:Issuer"],
+                      ValidAudience = Configuration["JwtSetting:Audience"],
+                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSetting:Key"]))
                   };
-
-              });            
+              });
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();

@@ -15,6 +15,9 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Principal;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ApPet.Controllers
 {
@@ -448,12 +451,14 @@ namespace ApPet.Controllers
             return View();
         }
 
-        #region Jwt Bearer 
+        #region Jwt Bearer Token
 
         [AllowAnonymous]
         [HttpPost("/jwt/login")]
         public async Task<IActionResult> LogInWithJwt(LoginViewModel model)
         {
+            var jwtErrors = new JwtErrors();
+
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
@@ -464,20 +469,27 @@ namespace ApPet.Controllers
                     if (result.Succeeded)
                     {
                         var claims = await _userManager.GetClaimsAsync(user);
-                        var jwt = GenerateToken(new ClaimsIdentity(new GenericIdentity(user.UserName, "Token")), user.UserName);
+                        var jwt = GenerateToken(new ClaimsIdentity(new GenericIdentity(user.UserName, "Token"), claims), user.UserName);
                         return Ok(jwt);
                     }
+
+                    AddErrors(result, ref jwtErrors);
                 }
+
+                jwtErrors.Add(JwtErrors.CreateError(JwtErrorTypes.InvalidUsernamePassword));
             }
 
-            return BadRequest("Could not create token");
-        }
+            AddErrors(ref jwtErrors);
 
+            return BadRequest(jwtErrors);
+        }
 
         [AllowAnonymous]
         [HttpPost("/jwt/signin")]
         public async Task<IActionResult> SignInWithJwt(RegisterViewModel model)
         {
+            var jwtErrors = new JwtErrors();
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
@@ -495,10 +507,13 @@ namespace ApPet.Controllers
                     _logger.LogInformation("User created a new account with password.");
                     return Ok(jwt);
                 }
-                AddErrors(result);
+
+                AddErrors(result, ref jwtErrors);
             }
 
-            return BadRequest(ModelState);
+            AddErrors(ref jwtErrors);
+
+            return BadRequest(jwtErrors);
         }
 
         private Token GenerateToken(ClaimsIdentity identity, string sub)
@@ -522,7 +537,7 @@ namespace ApPet.Controllers
             var token = new JwtSecurityToken(
                 _jwtSettings.Value.Issuer,
               _jwtSettings.Value.Audience,
-              claims,
+              identity.Claims,
               notBefore: now,
               expires: now.Add(expiration),
               signingCredentials: creds);
@@ -532,10 +547,11 @@ namespace ApPet.Controllers
             return new Token
             {
                 token = encodedJwt,
-                expires = (int)expiration.TotalSeconds
+                expires = (int)expiration.TotalSeconds,
+                ok = true
             };
         }
-        
+
         private static double ToUnixEpochDate(DateTime now)
         {
             var dateTime = new DateTime(now.Ticks, DateTimeKind.Local);
@@ -546,7 +562,43 @@ namespace ApPet.Controllers
 
         #region Helpers
 
-        private 
+        /// <summary>
+        /// Add the SignInResult Errors to the refer JwtErrors Object
+        /// </summary>
+        /// <param name="errors">The SingInResult Object for get the errors</param>
+        /// <param name="jwtErrors">The JwtErrors Object to set the errors</param>
+        private void AddErrors(Microsoft.AspNetCore.Identity.SignInResult errors, ref JwtErrors jwtErrors)
+        {
+            if (errors.IsLockedOut)
+                jwtErrors.Add(JwtErrors.CreateError(JwtErrorTypes.IsLockedOut));
+            if (errors.IsNotAllowed)
+                jwtErrors.Add(JwtErrors.CreateError(JwtErrorTypes.IsLockedOut));
+            if (errors.RequiresTwoFactor)
+                jwtErrors.Add(JwtErrors.CreateError(JwtErrorTypes.IsLockedOut));
+        }
+
+        /// <summary>
+        /// Add the IdentityResult Errors to the refer JwtErrors Object
+        /// </summary>
+        /// <param name="errors">The IdentityResult Object for get the errors</param>
+        /// <param name="jwtErrors">The JwtErrors Object to set the errors</param>
+        private void AddErrors(IdentityResult errors, ref JwtErrors jwtErrors)
+        {
+            foreach (var error in errors.Errors)
+                jwtErrors.Add(JwtErrors.CreateError(Enum.Parse<JwtErrorTypes>(error.Code), error));
+        }
+
+        /// <summary>
+        /// Add the ModelStateDictionary Errors to the refer JwtErrors Object
+        /// </summary>
+        /// <param name="jwtErrors">The JwtErrors Object to set the errors</param>
+        private void AddErrors(ref JwtErrors jwtErrors)
+        {
+            if (ModelState.ErrorCount > 0)
+                foreach (var modelState in ModelState.Values)
+                    foreach (ModelError error in modelState.Errors)
+                        jwtErrors.Add(JwtErrors.CreateError(Enum.Parse<JwtErrorTypes>($"ErrorIn{JObject.Parse(JsonConvert.SerializeObject(modelState)).SelectToken("Key").ToString()}"), error));
+        }
 
         private void AddErrors(IdentityResult result)
         {
