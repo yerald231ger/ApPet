@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 
 namespace ApPet.Models
 {
-    public class VetService : Base
+    public class Veterinary : Base<int>
     {
         public string Description { get; set; }
-        public float Price { get; set; }
-        public bool ShowPrice { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Address { get; set; }
+        public float Latitud { get; set; }
+        public float Longitud { get; set; }
+        public string ImageProfileId { get; set; }
 
         public virtual ICollection<VeterinaryVetService> VeterinaryVetServices { get; set; }
     }

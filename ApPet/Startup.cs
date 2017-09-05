@@ -10,7 +10,6 @@ using ApPet.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ApPet
 {
@@ -32,7 +31,7 @@ namespace ApPet
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
+            
             // Enable Dual Authentication 
             services.AddAuthentication(cfg =>
             {
@@ -53,6 +52,9 @@ namespace ApPet
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IPetTypeRepository, PetTypeRepository>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
             services.Configure<JwtSettings>(options => Configuration.GetSection("JwtSetting").Bind(options));
             services.Configure<AccountSchemas>(options => Configuration.GetSection("AccountSchemas").Bind(options));
 

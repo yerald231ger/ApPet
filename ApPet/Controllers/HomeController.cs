@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ApPet.Models;
-using Microsoft.AspNetCore.Authorization;
+using ApPet.Services;
 
 namespace ApPet.Controllers
 {
@@ -12,14 +12,12 @@ namespace ApPet.Controllers
             return View();
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
             return View();
         }
-
-        [Authorize(]
+        
         public IActionResult Contact()
         {            
             ViewData["Message"] = "Your contact page.";

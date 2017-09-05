@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ApPet.Models
 {
-    public class PetType : Base
+    public class PetType : Base<int>
     {
         public virtual ICollection<Pet> Pets { get; set; }
     }

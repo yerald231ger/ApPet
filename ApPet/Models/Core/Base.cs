@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace ApPet.Models
 {
-    public class Base
+    public class Base<TKey> 
     {
-        public int Id { get; set; }
+        public TKey Id { get; set; }
         public string Name { get; set; }
         public DateTime UpDate { get; set; }
         public DateTime ModDate { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; }        
     }
 }

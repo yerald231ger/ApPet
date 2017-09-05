@@ -15,6 +15,12 @@ namespace ApPet.Data
             : base(options)
         {
         }
+        
+        public virtual DbSet<Pet> Pets { get; set; }
+        public virtual DbSet<PetType> PetTypes { get; set; }
+        public virtual DbSet<Veterinary> Veterinaries { get; set; }
+        public virtual DbSet<VetService> VetServices { get; set; }
+        public virtual DbSet<VeterinaryVetService> VeterinaryVetServices { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

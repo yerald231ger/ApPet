@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ApPet.Models
 {
-    public class Pet : Base
+    public class Pet : Base<int>
     {
         public string Race { get; set; }
         public int Wight { get; set; }
