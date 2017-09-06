@@ -1,5 +1,6 @@
 ﻿using ApPet.Data;
 using ApPet.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -11,34 +12,50 @@ namespace ApPet.Services
 {
     public interface IRepository<TEntity, TKey> where TEntity : Base<TKey>
     {
+        //Create Methods
         EntityEntry<TEntity> Create(TEntity entity);
-        Task<EntityEntry<TEntity>> CreateAsync(TEntity entity);
         void Create(ICollection<TEntity> entities);
+        Task<EntityEntry<TEntity>> CreateAsync(TEntity entity); //Async
 
+        //Read Methods
         ICollection<TEntity> Read();
-        Task<ICollection<TEntity>> ReadAsync();
         TEntity Read(TKey key);
-        Task<TEntity> ReadAsync(TKey key);
+        Task<ICollection<TEntity>> ReadAsync(); //Async
+        Task<TEntity> ReadAsync(TKey key); //Async
 
+        //Update Methods
         EntityEntry<TEntity> Update(TEntity entity);
+        Task<EntityEntry<TEntity>> UpdateAsync(TEntity entity); //Async
         void Update(ICollection<TEntity> entities);
 
-        EntityEntry<TEntity> Remove(TEntity entity);
+        //Remove Methods
+        EntityEntry<TEntity> Remove(TEntity entity, bool softDelete = true);
+        EntityEntry<TEntity> Remove(TKey key, bool softDelete = true);
+        Task<EntityEntry<TEntity>> RemoveAsync(TEntity key, bool softDelete = true); //Async
+        Task<EntityEntry<TEntity>> RemoveAsync(TKey key, bool softDelete = true); //Async
         void Remove(ICollection<TEntity> entities);
+
+        // Any Method
+        bool Any(TKey key);
+
+        int Complete();
+        Task<int> CompleteAsync();
     }
 
     public class Repository<TEntity, TKey> : IRepository<TEntity, TKey> where TEntity : Base<TKey>
     {
         protected ApplicationDbContext _context { get; set; }
+        protected DbSet<TEntity> _dbSet { get; set; }
 
         public Repository(ApplicationDbContext context)
         {
             _context = context;
+            _dbSet = _context.Set<TEntity>();
         }
-        
+
         public ICollection<TEntity> Read()
         {
-            return _context.Set<TEntity>().Where<TEntity, TKey>().ToList();
+            return _dbSet.Where<TEntity, TKey>().ToList();
         }
 
         public Task<ICollection<TEntity>> ReadAsync()
@@ -48,7 +65,7 @@ namespace ApPet.Services
 
         public TEntity Read(TKey key)
         {
-            var mentity = _context.Set<TEntity>().Find(key);
+            var mentity = _dbSet.Find(key);
             return (mentity != null && mentity.IsActive) ? mentity : null;
         }
 
@@ -60,7 +77,7 @@ namespace ApPet.Services
         public EntityEntry<TEntity> Create(TEntity entity)
         {
             entity.IsActive = true;
-            return _context.Set<TEntity>().Add(entity);
+            return _dbSet.Add(entity);
         }
 
         public Task<EntityEntry<TEntity>> CreateAsync(TEntity entity)
@@ -70,33 +87,72 @@ namespace ApPet.Services
 
         public void Create(ICollection<TEntity> entities)
         {
-            _context.Set<TEntity>().AddRange(entities);
+            _dbSet.AddRange(entities);
         }
 
         public EntityEntry<TEntity> Update(TEntity entity)
         {
-            var _entity = _context.Set<TEntity>().Update(entity);
-            _context.SaveChanges();
-            return _entity;
+            entity.ModDate = DateTime.Now;
+            return _dbSet.Update(entity);
+        }
+
+        public Task<EntityEntry<TEntity>> UpdateAsync(TEntity entity)
+        {
+            return Task.Factory.StartNew(() => Update(entity));
         }
 
         public void Update(ICollection<TEntity> entities)
         {
-            _context.Set<TEntity>().UpdateRange(entities);
-            _context.SaveChanges();
+            _dbSet.UpdateRange(entities);
         }
 
-        public EntityEntry<TEntity> Remove(TEntity entity)
+        public EntityEntry<TEntity> Remove(TEntity entity, bool softDelete = true)
         {
-            var _entity = _context.Set<TEntity>().Remove(entity);
-            _context.SaveChanges();
-            return _entity;
+            if (softDelete)
+            {
+                entity.IsActive = false;
+                return Update(entity);
+            }
+            else
+            {
+                return _dbSet.Remove(entity);
+            }
+        }
+
+        public EntityEntry<TEntity> Remove(TKey key, bool softDelete = true)
+        {
+            var mentity = Read(key);
+            return Remove(mentity, softDelete);
+        }
+        
+        public Task<EntityEntry<TEntity>> RemoveAsync(TEntity entity, bool softDelete = true)
+        {
+            return Task.Factory.StartNew(() => Remove(entity, softDelete));
+        }
+
+        public Task<EntityEntry<TEntity>> RemoveAsync(TKey key, bool softDelete = true)
+        {
+            return Task.Factory.StartNew(() => Remove(key, softDelete));
         }
 
         public void Remove(ICollection<TEntity> entities)
         {
-            _context.Set<TEntity>().RemoveRange(entities);
-            _context.SaveChanges();
+            _dbSet.RemoveRange(entities);
+        }
+
+        public int Complete()
+        {
+            return _context.SaveChanges();
+        }
+
+        public Task<int> CompleteAsync()
+        {
+            return Task.Factory.StartNew(Complete);
+        }
+
+        public bool Any(TKey key)
+        {
+            return _dbSet.Any(e => e.Id.Equals(key));
         }
     }
 }

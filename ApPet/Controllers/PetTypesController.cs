@@ -22,7 +22,6 @@ namespace ApPet.Controllers
         // GET: PetTypes
         public async Task<IActionResult> Index()
         {
-            //return View(await _context.PetTypes.ToListAsync());
             return View(await _unitOfWork.PetTypes.ReadAsync());
         }
 
@@ -34,8 +33,7 @@ namespace ApPet.Controllers
                 return NotFound();
             }
 
-            var petType = await _context.PetTypes
-                .SingleOrDefaultAsync(m => m.Id == id);
+            var petType = await _unitOfWork.PetTypes.ReadAsync(id.Value);
             if (petType == null)
             {
                 return NotFound();
@@ -61,8 +59,6 @@ namespace ApPet.Controllers
             {
                 var mpetType = await _unitOfWork.PetTypes.CreateAsync(petType);
                 _unitOfWork.Complete();
-                //_context.Add(petType);
-                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(petType);
@@ -77,7 +73,6 @@ namespace ApPet.Controllers
             }
 
             var mpetType = await _unitOfWork.PetTypes.ReadAsync(id.Value);
-            //var petType = await _context.PetTypes.SingleOrDefaultAsync(m => m.Id == id);
 
             if (mpetType == null)
             {
@@ -102,8 +97,8 @@ namespace ApPet.Controllers
             {
                 try
                 {
-                    _context.Update(petType);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.PetTypes.Update(petType);
+                    await _unitOfWork.CompleteAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -129,14 +124,13 @@ namespace ApPet.Controllers
                 return NotFound();
             }
 
-            var petType = await _context.PetTypes
-                .SingleOrDefaultAsync(m => m.Id == id);
-            if (petType == null)
+            var mpetType = await _unitOfWork.PetTypes.ReadAsync(id.Value);
+            if (mpetType == null)
             {
                 return NotFound();
             }
 
-            return View(petType);
+            return View(mpetType);
         }
 
         // POST: PetTypes/Delete/5
@@ -144,9 +138,9 @@ namespace ApPet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var petType = await _context.PetTypes.SingleOrDefaultAsync(m => m.Id == id);
-            _context.PetTypes.Remove(petType);
-            await _context.SaveChangesAsync();
+            var mpetType = await _unitOfWork.PetTypes.ReadAsync(id);
+            var mentity = _unitOfWork.PetTypes.Remove(mpetType, false);
+            await _unitOfWork.CompleteAsync();
             return RedirectToAction(nameof(Index));
         }
 

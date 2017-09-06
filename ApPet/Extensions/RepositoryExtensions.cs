@@ -29,14 +29,7 @@ namespace ApPet.Services
         {
             return tEntity.Where(ts => ts.IsActive).Where(predicate);
         }
-
-
-        public static IQueryable<TEntity> Find<TEntity, TKey>
-            (this IQueryable<TEntity> tEntity, Expression<Func<Base<TKey>, bool>> predicate)
-            where TEntity : Base<TKey>
-        {
-            return tEntity.Find(ts => ts.IsActive).Where(predicate);
-        }
+                
 
     }
 }

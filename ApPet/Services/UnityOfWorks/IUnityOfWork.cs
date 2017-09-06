@@ -1,13 +1,16 @@
 ﻿using ApPet.Data;
 using ApPet.Services;
 using System;
+using System.Threading.Tasks;
 
 namespace ApPet.Services
 {
     public interface IUnitOfWork
     {
         IPetTypeRepository PetTypes { get; set; }
+
         int Complete();
+        Task<int> CompleteAsync();
     }
 
     public class UnitOfWork : IUnitOfWork, IDisposable
@@ -26,6 +29,11 @@ namespace ApPet.Services
         public int Complete()
         {
             return _context.SaveChanges();
+        }
+
+        public Task<int> CompleteAsync()
+        {
+            return Task.Factory.StartNew(Complete);
         }
 
         private bool _disposed = false;
