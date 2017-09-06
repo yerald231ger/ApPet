@@ -10,12 +10,10 @@ namespace ApPet.Controllers
 {
     public class PetTypesController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
 
         public PetTypesController(ApplicationDbContext context, IUnitOfWork unitOfWork)
         {
-            _context = context;
             _unitOfWork = unitOfWork;            
         }
 
@@ -146,7 +144,7 @@ namespace ApPet.Controllers
 
         private bool PetTypeExists(int id)
         {
-            return _context.PetTypes.Any(e => e.Id == id);
+            return _unitOfWork.PetTypes.Any(id);
         }
     }
 }
