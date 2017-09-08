@@ -4,14 +4,13 @@ using System;
 
 namespace ApPet.Services
 {
-    public interface IPetTypeRepository : IRepository<PetType, int>
+    public interface IVetServicesRepository : IRepository<VetService, int>
     {
     }
 
-    public class PetTypeRepository : Repository<PetType, int>, IPetTypeRepository, IDisposable
+    public class VetServicesRepository : Repository<VetService, int>, IVetServicesRepository, IDisposable
     {
-
-        public PetTypeRepository(ApplicationDbContext context) : base(context)
+        public VetServicesRepository(ApplicationDbContext context) : base(context)
         {
         }
 
@@ -33,6 +32,6 @@ namespace ApPet.Services
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }        
+        }
     }
 }

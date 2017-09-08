@@ -7,7 +7,9 @@ namespace ApPet.Services
 {
     public interface IUnitOfWork
     {
-        IPetTypeRepository PetTypes { get; set; }
+        public IVetServicesRepository VetServices { get; set; }
+        public IPetTypeRepository PetTypes { get; set; }
+        public IPetRepository Pets { get; set; }
 
         int Complete();
         Task<int> CompleteAsync();
@@ -17,6 +19,7 @@ namespace ApPet.Services
     {
         private readonly ApplicationDbContext _context;
 
+        public IVetServicesRepository VetServices { get; set; }
         public IPetTypeRepository PetTypes { get; set; }
         public IPetRepository Pets { get; set; }
 
