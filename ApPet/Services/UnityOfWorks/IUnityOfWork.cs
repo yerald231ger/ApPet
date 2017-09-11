@@ -7,9 +7,9 @@ namespace ApPet.Services
 {
     public interface IUnitOfWork
     {
-        public IVetServicesRepository VetServices { get; set; }
-        public IPetTypeRepository PetTypes { get; set; }
-        public IPetRepository Pets { get; set; }
+        IVetServicesRepository VetServices { get; set; }
+        IPetTypeRepository PetTypes { get; set; }
+        IPetRepository Pets { get; set; }
 
         int Complete();
         Task<int> CompleteAsync();
