@@ -11,22 +11,23 @@ using ApPet.Services;
 
 namespace ApPet.Controllers
 {
-    public class VetServicesController : Controller
+    public class VeterinariesController : Controller
     {
         public IUnitOfWork _unitOfWork { get; set; }
 
-        public VetServicesController(IUnitOfWork unitOfWork)
+        public VeterinariesController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        // GET: VetServices
+
+        // GET: Veterinaries
         public async Task<IActionResult> Index()
         {
-            return View(await _unitOfWork.VetServices.ReadAsync());
+            return View(await _unitOfWork.Veterinaries.ReadAsync());
         }
 
-        // GET: VetServices/Details/5
+        // GET: Veterinaries/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,38 +35,38 @@ namespace ApPet.Controllers
                 return NotFound();
             }
 
-            var mvetService = await _unitOfWork.VetServices.ReadAsync(id.Value);
-            if (mvetService == null)
+            var mveterinary = await _unitOfWork.Veterinaries.ReadAsync(id.Value);
+            if (mveterinary == null)
             {
                 return NotFound();
             }
 
-            return View(mvetService);
+            return View(mveterinary);
         }
 
-        // GET: VetServices/Create
+        // GET: Veterinaries/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: VetServices/Create
+        // POST: Veterinaries/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Description,Price,ShowPrice,Id,Name,UpDate,ModDate,IsActive")] VetService vetService)
+        public async Task<IActionResult> Create([Bind("Description,PhoneNumber,Address,Latitud,Longitud,ImageProfileId,Id,Name,UpDate,ModDate,IsActive")] Veterinary veterinary)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.VetServices.Create(vetService);
+                _unitOfWork.Veterinaries.Create(veterinary);
                 await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(vetService);
+            return View(veterinary);
         }
 
-        // GET: VetServices/Edit/5
+        // GET: Veterinaries/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +74,22 @@ namespace ApPet.Controllers
                 return NotFound();
             }
 
-            var mvetService = await _unitOfWork.VetServices.ReadAsync(id.Value);
-            if (mvetService == null)
+            var mveterinary = await _unitOfWork.Veterinaries.ReadAsync(id.Value);
+            if (mveterinary == null)
             {
                 return NotFound();
             }
-            return View(mvetService);
+            return View(mveterinary);
         }
 
-        // POST: VetServices/Edit/5
+        // POST: Veterinaries/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Description,Price,ShowPrice,Id,Name,UpDate,ModDate,IsActive")] VetService vetService)
+        public async Task<IActionResult> Edit(int id, [Bind("Description,PhoneNumber,Address,Latitud,Longitud,ImageProfileId,Id,Name,UpDate,ModDate,IsActive")] Veterinary veterinary)
         {
-            if (id != vetService.Id)
+            if (id != veterinary.Id)
             {
                 return NotFound();
             }
@@ -97,12 +98,12 @@ namespace ApPet.Controllers
             {
                 try
                 {
-                    _unitOfWork.VetServices.Update(vetService);
+                    _unitOfWork.Veterinaries.Update(veterinary);
                     await _unitOfWork.CompleteAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!VetServiceExists(vetService.Id))
+                    if (!VeterinaryExists(veterinary.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +114,10 @@ namespace ApPet.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(vetService);
+            return View(veterinary);
         }
 
-        // GET: VetServices/Delete/5
+        // GET: Veterinaries/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,29 +125,29 @@ namespace ApPet.Controllers
                 return NotFound();
             }
 
-            var mvetService = await _unitOfWork.VetServices.ReadAsync(id.Value);
-            if (mvetService == null)
+            var veterinary = await _unitOfWork.Veterinaries.ReadAsync(id.Value);
+            if (veterinary == null)
             {
                 return NotFound();
             }
 
-            return View(mvetService);
+            return View(veterinary);
         }
 
-        // POST: VetServices/Delete/5
+        // POST: Veterinaries/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var mvetService = await _unitOfWork.VetServices.ReadAsync(id);
-            _unitOfWork.VetServices.Remove(mvetService);
+            var mveterinary = await _unitOfWork.Veterinaries.ReadAsync(id);
+            _unitOfWork.Veterinaries.Remove(mveterinary);
             await _unitOfWork.CompleteAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool VetServiceExists(int id)
+        private bool VeterinaryExists(int id)
         {
-            return _unitOfWork.VetServices.Any(id);
+            return _unitOfWork.Veterinaries.Any(id);
         }
     }
 }

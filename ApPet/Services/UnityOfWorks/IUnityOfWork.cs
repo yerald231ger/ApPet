@@ -1,5 +1,4 @@
 ﻿using ApPet.Data;
-using ApPet.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -10,6 +9,7 @@ namespace ApPet.Services
         IVetServicesRepository VetServices { get; set; }
         IPetTypeRepository PetTypes { get; set; }
         IPetRepository Pets { get; set; }
+        IVeterinaryRepository Veterinaries { get; set; }
 
         int Complete();
         Task<int> CompleteAsync();
@@ -22,6 +22,7 @@ namespace ApPet.Services
         public IVetServicesRepository VetServices { get; set; }
         public IPetTypeRepository PetTypes { get; set; }
         public IPetRepository Pets { get; set; }
+        public IVeterinaryRepository Veterinaries { get; set; }
 
         public UnitOfWork(ApplicationDbContext context)
         {
