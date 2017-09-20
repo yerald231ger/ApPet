@@ -35,6 +35,9 @@ namespace ApPet.Services
         Task<EntityEntry<TEntity>> RemoveAsync(TKey key, bool softDelete = true); //Async
         void Remove(ICollection<TEntity> entities);
 
+        //Search Methods
+        TEntity Search(string expression);
+
         // Any Method
         bool Any(TKey key);
 
@@ -153,6 +156,11 @@ namespace ApPet.Services
         public bool Any(TKey key)
         {
             return _dbSet.Any(e => e.Id.Equals(key));
+        }
+
+        public TEntity Search(string expression)
+        {
+            throw new NotImplementedException();
         }
     }
 }

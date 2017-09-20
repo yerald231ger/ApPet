@@ -17,6 +17,12 @@ namespace ApPet.Services
         {
         }
 
+        new public Veterinary Search(string expression)
+        {
+
+            return null;
+        }
+
         private bool _disposed = false;
 
         protected virtual void Dispose(bool disposing)

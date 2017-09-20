@@ -53,6 +53,8 @@ namespace ApPet
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IPetTypeRepository, PetTypeRepository>();
+            services.AddTransient<IVeterinaryRepository, VeterinaryRepository>();
+            services.AddTransient<IVetServicesRepository, VetServicesRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.Configure<JwtSettings>(options => Configuration.GetSection("JwtSetting").Bind(options));
