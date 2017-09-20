@@ -28,6 +28,9 @@ namespace ApPet.Services
         {
             _context = context;
             PetTypes = new PetTypeRepository(context);
+            Veterinaries = new VeterinaryRepository(context);
+            Pets = new PetRepository(context);
+            VetServices = new VetServicesRepository(context);
         }
 
         public int Complete()
