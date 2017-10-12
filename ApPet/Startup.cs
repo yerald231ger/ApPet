@@ -28,16 +28,26 @@ namespace ApPet
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(cfg => {
+                cfg.Password.RequireDigit = false;
+                cfg.Password.RequiredLength = 4;
+                cfg.Password.RequiredUniqueChars = 0;
+                cfg.Password.RequireLowercase = false;
+                cfg.Password.RequireNonAlphanumeric = false;
+                cfg.Password.RequireUppercase = false;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-            
+
             // Enable Dual Authentication 
             services.AddAuthentication(cfg =>
             {
                 cfg.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-              .AddCookie(cfg => cfg.SlidingExpiration = true)
+              .AddCookie(cfg =>
+              {
+                  cfg.SlidingExpiration = true;
+              })
               .AddJwtBearer(cfg =>
               {
                   cfg.RequireHttpsMetadata = false;
