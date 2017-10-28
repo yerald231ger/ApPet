@@ -13,8 +13,6 @@ namespace ApPet.Services
 
     public class PetRepository : Repository<Pet, int>, IPetRepository, IDisposable
     {
-        private DbSet<Pet> _dbSet { get; set; }
-
         public PetRepository(ApplicationDbContext context) : base(context)
         {
             _dbSet = _context.Set<Pet>();
