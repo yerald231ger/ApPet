@@ -24,7 +24,12 @@ namespace ApPet.Controllers
         // GET: Veterinaries
         public async Task<IActionResult> Index()
         {
-            return View(await _unitOfWork.Veterinaries.ReadAsync());
+            var veterinaries = await _unitOfWork.Veterinaries.ReadAsync();
+
+            if (veterinaries == null)
+                veterinaries = new List<Veterinary>();
+
+            return View(veterinaries);
         }
 
         // GET: Veterinaries/Details/5
