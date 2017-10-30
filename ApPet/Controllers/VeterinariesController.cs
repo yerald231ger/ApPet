@@ -8,28 +8,27 @@ using Microsoft.EntityFrameworkCore;
 using ApPet.Data;
 using ApPet.Models;
 using ApPet.Services;
+using Microsoft.Extensions.Configuration;
+using ApPet.Models.VeterinariesViewModels;
 
 namespace ApPet.Controllers
 {
     public class VeterinariesController : Controller
     {
         public IUnitOfWork _unitOfWork { get; set; }
+        private string ApiKeyGoogle { get; set; }
 
-        public VeterinariesController(IUnitOfWork unitOfWork)
+        public VeterinariesController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            ApiKeyGoogle = configuration["ApiKeyGoogle"];
         }
 
 
         // GET: Veterinaries
         public async Task<IActionResult> Index()
         {
-            var veterinaries = await _unitOfWork.Veterinaries.ReadAsync();
-
-            if (veterinaries == null)
-                veterinaries = new List<Veterinary>();
-
-            return View(veterinaries);
+            return View(await _unitOfWork.Veterinaries.ReadAsync());
         }
 
         // GET: Veterinaries/Details/5
@@ -51,8 +50,9 @@ namespace ApPet.Controllers
 
         // GET: Veterinaries/Create
         public IActionResult Create()
-        {
-            return View();
+        { 
+            ViewBag.ApiKeyGoogle = ApiKeyGoogle;
+            return View(new CreateViewModel { Latitud = 25.678, Longitud = 259.678 });
         }
 
         // POST: Veterinaries/Create
@@ -60,11 +60,21 @@ namespace ApPet.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Description,PhoneNumber,Address,Latitud,Longitud,ImageProfileId,Id,Name,UpDate,ModDate,IsActive")] Veterinary veterinary)
+        public async Task<IActionResult> Create([Bind("Description,PhoneNumber,Address,Latitud,CP,Longitud,ImageProfileId,Name")] CreateViewModel veterinary)
         {
+            ViewBag.ApiKeyGoogle = ApiKeyGoogle;
             if (ModelState.IsValid)
             {
-                _unitOfWork.Veterinaries.Create(veterinary);
+                _unitOfWork.Veterinaries.Create(new Veterinary {
+                    Description = veterinary.Description,
+                    CP = veterinary.CP,
+                    PhoneNumber = veterinary.PhoneNumber.ToString(),
+                    Address = veterinary.Address,
+                    Latitud = (float)veterinary.Latitud,
+                    Longitud = (float)veterinary.Longitud,
+                    ImageProfileId = veterinary.ImageProfileId,
+                    Name = veterinary.Name
+                });
                 await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Index));
             }

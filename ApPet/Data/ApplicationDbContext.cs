@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ApPet.Models;
 using Microsoft.AspNetCore.Identity;
+
 
 namespace ApPet.Data
 {
@@ -21,6 +18,9 @@ namespace ApPet.Data
         public virtual DbSet<Veterinary> Veterinaries { get; set; }
         public virtual DbSet<VetService> VetServices { get; set; }
         public virtual DbSet<VeterinaryVetService> VeterinaryVetServices { get; set; }
+        public virtual DbSet<Pais> Paises { get; set; }
+        public virtual DbSet<Estado> Estados { get; set; }
+        public virtual DbSet<Ciudad> Ciudad { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -55,11 +55,35 @@ namespace ApPet.Data
                 .HasForeignKey(p => p.PetTypeId);
             });
 
+            builder.Entity<Ciudad>(build =>
+            {
+                build.ToTable("tblCiudades");
+
+                build.HasOne(c => c.Estado)
+                .WithMany(e => e.Ciudades)
+                .HasForeignKey(c => c.IdEstado);
+            });
+
+            builder.Entity<Estado>(build =>
+            {
+                build.ToTable("tblEstados");
+
+                build.HasOne(e => e.Pais)
+                .WithMany(p => p.Estados)
+                .HasForeignKey(e => e.IdPais);
+
+                build.HasMany(e => e.Users)
+                .WithOne(u => u.Estado)
+                .HasForeignKey(u => u.IdEstado);
+            });
+
             builder.Entity<VeterinaryVetService>().ToTable("tblVeterinaryVetServices");
 
             builder.Entity<Veterinary>().ToTable("tblVeterinaries");
 
             builder.Entity<VetService>().ToTable("tblVetServices");
+
+            builder.Entity<Pais>().ToTable("tblPaises");
 
             builder.Entity<VeterinaryVetService>().HasKey(vvs => new { vvs.VeterinaryId, vvs.VetServiceId });
 

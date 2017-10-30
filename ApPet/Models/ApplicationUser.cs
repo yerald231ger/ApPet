@@ -15,6 +15,9 @@ namespace ApPet.Models
         public DateTime UpDate { get; set; }
         public DateTime ModDate { get; set; }
 
+        public int IdEstado { get; set; }
+        public Estado Estado { get; set; }
+
         public virtual ICollection<Pet> Pets { get; set; }
     }
 }

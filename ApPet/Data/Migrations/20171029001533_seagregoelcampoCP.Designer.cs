@@ -11,9 +11,10 @@ using System;
 namespace ApPet.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171029001533_seagregoelcampoCP")]
+    partial class seagregoelcampoCP
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,8 +37,6 @@ namespace ApPet.Data.Migrations
                     b.Property<bool>("EmailConfirmed");
 
                     b.Property<string>("FirstName");
-
-                    b.Property<int>("IdEstado");
 
                     b.Property<string>("LastName");
 
@@ -72,8 +71,6 @@ namespace ApPet.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdEstado");
-
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
 
@@ -83,70 +80,6 @@ namespace ApPet.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("tblUser");
-                });
-
-            modelBuilder.Entity("ApPet.Models.Ciudad", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("IdEstado");
-
-                    b.Property<bool>("IsActive");
-
-                    b.Property<DateTime>("ModDate");
-
-                    b.Property<string>("Name");
-
-                    b.Property<DateTime>("UpDate");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdEstado");
-
-                    b.ToTable("tblCiudades");
-                });
-
-            modelBuilder.Entity("ApPet.Models.Estado", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("IdPais");
-
-                    b.Property<bool>("IsActive");
-
-                    b.Property<DateTime>("ModDate");
-
-                    b.Property<string>("Name");
-
-                    b.Property<DateTime>("UpDate");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdPais");
-
-                    b.ToTable("tblEstados");
-                });
-
-            modelBuilder.Entity("ApPet.Models.Pais", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("IsActive");
-
-                    b.Property<DateTime>("ModDate");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("PaisISO");
-
-                    b.Property<DateTime>("UpDate");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("tblPaises");
                 });
 
             modelBuilder.Entity("ApPet.Models.Pet", b =>
@@ -212,10 +145,6 @@ namespace ApPet.Data.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<int?>("EstadoId");
-
-                    b.Property<int>("IdEstado");
-
                     b.Property<string>("ImageProfileId");
 
                     b.Property<bool>("IsActive");
@@ -233,8 +162,6 @@ namespace ApPet.Data.Migrations
                     b.Property<DateTime>("UpDate");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EstadoId");
 
                     b.ToTable("tblVeterinaries");
                 });
@@ -384,30 +311,6 @@ namespace ApPet.Data.Migrations
                     b.ToTable("tblUserToken");
                 });
 
-            modelBuilder.Entity("ApPet.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("ApPet.Models.Estado", "Estado")
-                        .WithMany("Users")
-                        .HasForeignKey("IdEstado")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("ApPet.Models.Ciudad", b =>
-                {
-                    b.HasOne("ApPet.Models.Estado", "Estado")
-                        .WithMany("Ciudades")
-                        .HasForeignKey("IdEstado")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("ApPet.Models.Estado", b =>
-                {
-                    b.HasOne("ApPet.Models.Pais", "Pais")
-                        .WithMany("Estados")
-                        .HasForeignKey("IdPais")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("ApPet.Models.Pet", b =>
                 {
                     b.HasOne("ApPet.Models.PetType", "PetType")
@@ -418,13 +321,6 @@ namespace ApPet.Data.Migrations
                     b.HasOne("ApPet.Models.ApplicationUser", "User")
                         .WithMany("Pets")
                         .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("ApPet.Models.Veterinary", b =>
-                {
-                    b.HasOne("ApPet.Models.Estado", "Estado")
-                        .WithMany()
-                        .HasForeignKey("EstadoId");
                 });
 
             modelBuilder.Entity("ApPet.Models.VeterinaryVetService", b =>

@@ -28,7 +28,8 @@ namespace ApPet
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(cfg => {
+            services.AddIdentity<ApplicationUser, IdentityRole>(cfg =>
+            {
                 cfg.Password.RequireDigit = false;
                 cfg.Password.RequiredLength = 4;
                 cfg.Password.RequiredUniqueChars = 0;
@@ -81,6 +82,7 @@ namespace ApPet
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
                 app.UseDatabaseErrorPage();
+
             }
             else
             {

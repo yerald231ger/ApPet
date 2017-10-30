@@ -9,6 +9,7 @@ namespace ApPet.Services
 {
     public interface IVeterinaryRepository : IRepository<Veterinary, int>
     {
+        List<Veterinary> Search(double lat, double lng);
     }
 
     public class VeterinaryRepository : Repository<Veterinary, int>, IVeterinaryRepository, IDisposable
@@ -17,9 +18,8 @@ namespace ApPet.Services
         {
         }
 
-        new public Veterinary Search(string expression)
+        public List<Veterinary> Search(double lat, double lng)
         {
-
             return null;
         }
 

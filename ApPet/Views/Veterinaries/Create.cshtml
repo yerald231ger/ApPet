@@ -1,11 +1,15 @@
-﻿@model ApPet.Models.Veterinary
-
+﻿@model ApPet.Models.VeterinariesViewModels.CreateViewModel
 @{
     ViewData["Title"] = "Create";
 }
+<style>
+    #map-address {
+        height: 400px;
+        width: 100%;
+    }
+</style>
 
 <h2>Create</h2>
-
 <h4>Veterinary</h4>
 <hr />
 <div class="row">
@@ -23,19 +27,20 @@
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="CP" class="control-label"></label>
+                <input asp-for="CP" class="form-control" />
+                <span asp-validation-for="CP" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Latitud" class="control-label"></label>
-                <input asp-for="Latitud" class="form-control" />
-                <span asp-validation-for="Latitud" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Longitud" class="control-label"></label>
-                <input asp-for="Longitud" class="form-control" />
-                <span asp-validation-for="Longitud" class="text-danger"></span>
+                <input asp-for="@Model.Latitud" type="hidden" />
+                <input asp-for="@Model.Longitud" type="hidden" />
+                <label>set address on map: </label>
+                <div id="map-address"></div>
             </div>
             <div class="form-group">
                 <label asp-for="ImageProfileId" class="control-label"></label>
@@ -48,33 +53,79 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UpDate" class="control-label"></label>
-                <input asp-for="UpDate" class="form-control" />
-                <span asp-validation-for="UpDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ModDate" class="control-label"></label>
-                <input asp-for="ModDate" class="form-control" />
-                <span asp-validation-for="ModDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>
         </form>
     </div>
 </div>
-
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+
+        latitud = $("#Latitud");
+        longitud = $("#Longitud");
+        address = $("#Address");
+        cp = $("#CP");
+
+        function initMap(uluru) {
+
+            if (uluru == null) {
+                var uluru = {
+                    lat: parseFloat(latitud.val()),
+                    lng: parseFloat(longitud.val())
+                };
+            }
+
+            var map = new google.maps.Map(document.getElementById('map-address'), {
+                zoom: 15,
+                center: uluru
+            });
+
+            var marker = new google.maps.Marker({
+                position: uluru,
+                draggable: true,
+                map: map
+            });
+
+            google.maps.event.addListener(map, 'click', function (event) {
+                latitud.val(event.latLng.lat());
+                longitud.val(event.latLng.lng());
+                marker.setPosition(event.latLng);
+            });
+
+            marker.addListener('dragend', function (event) {
+                var lat = marker.getPosition().lat();
+                var long = marker.getPosition().lng();
+
+                latitud.val(lat);
+                longitud.val(long);
+            });
+
+            cp.focusout(function () {
+                geocode();
+            });
+        }
+
+        function geocode() {
+            $.ajax({
+                url: "https://maps.googleapis.com/maps/api/geocode/json?address=" + cp.val() +"&key=@ViewBag.ApiKeyGoogle",
+                success: function (response) {
+                    var myLatlng = new google.maps.LatLng(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng);
+                    var uluru = {
+                        lat: myLatlng.lat(),
+                        lng: myLatlng.lng()
+                    }
+                    initMap(uluru);
+                }
+            });
+        }
+
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.ApiKeyGoogle&callback=initMap">
+    </script>
+
 }
