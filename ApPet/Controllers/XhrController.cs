@@ -1,37 +1,39 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ApPet.Models;
-using System.Collections.Generic;
 using ApPet.Services;
+using ApPet.Models;
+using ApPet.Models.XhrViewModels;
 
 namespace ApPet.Controllers
 {
     [Route("xhr")]
     [Produces("application/json")]
-    [Authorize]
     public class XhrController : Controller
     {
         private IVeterinaryRepository veterinaryRepository;
 
-        public XhrController(IVeterinaryRepository veterinaryRepository) {
+        public XhrController(IVeterinaryRepository veterinaryRepository)
+        {
             this.veterinaryRepository = veterinaryRepository;
         }
-
-        public IActionResult Index()
+        
+        [HttpGet("Vets/{latitud:double}/{longitud:double}")]
+        public List<Veterinary> GetVeterinaries(GeographyViewModel model)
         {
-            return View();
-        }
-
-        public List<Veterinary> GetNearVeterinaries(double lat, double lng)
-        {
-            List<Veterinary> listVeterinaries = veterinaryRepository.Search(lat, lng);
-            return null;
+            if (ModelState.IsValid)
+            {
+                List<Veterinary> listVeterinaries = veterinaryRepository.SearchNearVeterinaries(model.Latitud.Value, model.Longitud.Value);
+                return listVeterinaries;
+            }
+            return new List<Veterinary>();
         }
 
         [HttpGet]
-        public string GetGeoLocalization(string Address) {
+        public string GetGeoLocalization(string Address)
+        {
 
             return "";
-        }        
+        }
     }
 }

@@ -2,6 +2,7 @@
 using ApPet.Models;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace ApPet.Services
 {
     public interface IVeterinaryRepository : IRepository<Veterinary, int>
     {
-        List<Veterinary> Search(double lat, double lng);
+        List<Veterinary> SearchNearVeterinaries(double lat, double lng);
     }
 
     public class VeterinaryRepository : Repository<Veterinary, int>, IVeterinaryRepository, IDisposable
@@ -18,9 +19,10 @@ namespace ApPet.Services
         {
         }
 
-        public List<Veterinary> Search(double lat, double lng)
+        public List<Veterinary> SearchNearVeterinaries(double lat, double lng)
         {
-            return null;
+            var vets = _dbSet.FromSql($"EXEC [dbo].[sptblVeterinaries_GetNear]	@Lat = {lat}, @Lng = {lng}").ToList();
+            return vets;
         }
 
         private bool _disposed = false;

@@ -14,7 +14,7 @@ namespace ApPet.Models
         public string LastName { get; set; }
         public DateTime UpDate { get; set; }
         public DateTime ModDate { get; set; }
-
+        
         public int IdEstado { get; set; }
         public Estado Estado { get; set; }
 
