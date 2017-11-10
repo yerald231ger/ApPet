@@ -13,9 +13,9 @@ namespace ApPet.Services
     public interface IRepository<TEntity, TKey> where TEntity : Base<TKey>
     {
         //Create Methods
-        EntityEntry<TEntity> Create(TEntity entity);
+        TEntity Create(TEntity entity);
         void Create(ICollection<TEntity> entities);
-        Task<EntityEntry<TEntity>> CreateAsync(TEntity entity); //Async
+        Task<TEntity> CreateAsync(TEntity entity); //Async
 
         //Read Methods
         ICollection<TEntity> Read();
@@ -77,13 +77,15 @@ namespace ApPet.Services
             return Task.Factory.StartNew(() => Read(key));
         }
 
-        public EntityEntry<TEntity> Create(TEntity entity)
+        public TEntity Create(TEntity entity)
         {
             entity.IsActive = true;
-            return _dbSet.Add(entity);
+            entity.ModDate = DateTime.Now;
+            entity.UpDate = DateTime.Now;
+            return _dbSet.Add(entity).Entity;
         }
 
-        public Task<EntityEntry<TEntity>> CreateAsync(TEntity entity)
+        public Task<TEntity> CreateAsync(TEntity entity)
         {
             return Task.Factory.StartNew(() => Create(entity));
         }

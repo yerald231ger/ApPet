@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ApPet.Data;
 using ApPet.Models;
 using ApPet.Services;
+using ApPet.Models.VetServicesViewModels;
 
 namespace ApPet.Controllers
 {
@@ -44,8 +45,9 @@ namespace ApPet.Controllers
         }
 
         // GET: VetServices/Create
-        public IActionResult Create()
+        public IActionResult Create(int idVeterinary)
         {
+            ViewBag.IdVeterinary = idVeterinary;
             return View();
         }
 
@@ -54,15 +56,23 @@ namespace ApPet.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Description,Price,ShowPrice,Id,Name,UpDate,ModDate,IsActive")] VetService vetService)
+        public async Task<IActionResult> Create(CreateViewModel model)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.VetServices.Create(vetService);
+                var vetService = await _unitOfWork.VetServices.CreateAsync(new VetService
+                {
+                    Description = model.Description,
+                    Name = model.Name,
+                    Price = model.Price,
+                    ShowPrice = model.ShowPrice
+                });
+
+                vetService.VeterinaryVetServices.Add(new VeterinaryVetService { VeterinaryId = model.IdVeterinary, VetServiceId = vetService.Id });
                 await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(vetService);
+            return View(model);
         }
 
         // GET: VetServices/Edit/5
