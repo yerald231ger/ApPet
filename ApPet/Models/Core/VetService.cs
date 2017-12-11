@@ -11,6 +11,7 @@ namespace ApPet.Models
         public float Price { get; set; }
         public bool ShowPrice { get; set; }
 
-        public virtual ICollection<VeterinaryVetService> VeterinaryVetServices { get; set; }
+        public int IdVeterinary { get; set; }
+        public Veterinary Veterinary { get; set; }
     }
 }

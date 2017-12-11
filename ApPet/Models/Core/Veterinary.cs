@@ -18,6 +18,6 @@ namespace ApPet.Models
         public int IdEstado { get; set; }
         public virtual Estado Estado { get; set; }
 
-        public virtual ICollection<VeterinaryVetService> VeterinaryVetServices { get; set; }
+        public virtual ICollection<VetService> Services { get; set; }
     }
 }

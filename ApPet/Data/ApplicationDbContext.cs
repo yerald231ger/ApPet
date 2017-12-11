@@ -17,7 +17,6 @@ namespace ApPet.Data
         public virtual DbSet<PetType> PetTypes { get; set; }
         public virtual DbSet<Veterinary> Veterinaries { get; set; }
         public virtual DbSet<VetService> VetServices { get; set; }
-        public virtual DbSet<VeterinaryVetService> VeterinaryVetServices { get; set; }
         public virtual DbSet<Pais> Paises { get; set; }
         public virtual DbSet<Estado> Estados { get; set; }
         public virtual DbSet<Ciudad> Ciudad { get; set; }
@@ -77,25 +76,29 @@ namespace ApPet.Data
                 .HasForeignKey(u => u.IdEstado);
             });
 
-            builder.Entity<VeterinaryVetService>().ToTable("tblVeterinaryVetServices");
+            builder.Entity<Veterinary>(build => {
+                build.ToTable("tblVeterinaries");
 
-            builder.Entity<Veterinary>().ToTable("tblVeterinaries");
+                build.HasMany(v => v.Services)
+                .WithOne(vs => vs.Veterinary)
+                .HasForeignKey(u => u.IdVeterinary);
+            });
 
             builder.Entity<VetService>().ToTable("tblVetServices");
 
             builder.Entity<Pais>().ToTable("tblPaises");
 
-            builder.Entity<VeterinaryVetService>().HasKey(vvs => new { vvs.VeterinaryId, vvs.VetServiceId });
+            //builder.Entity<VeterinaryVetService>().HasKey(vvs => new { vvs.VeterinaryId, vvs.VetServiceId });
 
-            builder.Entity<VeterinaryVetService>()
-                .HasOne(vvs => vvs.Veterinary)
-                .WithMany(v => v.VeterinaryVetServices)
-                .HasForeignKey(vvs => vvs.VeterinaryId);
+            //builder.Entity<VeterinaryVetService>()
+            //    .HasOne(vvs => vvs.Veterinary)
+            //    .WithMany(v => v.VeterinaryVetServices)
+            //    .HasForeignKey(vvs => vvs.VeterinaryId);
 
-            builder.Entity<VeterinaryVetService>()
-                .HasOne(vvs => vvs.VetService)
-                .WithMany(vs => vs.VeterinaryVetServices)
-                .HasForeignKey(vvs => vvs.VetServiceId);
+            //builder.Entity<VeterinaryVetService>()
+            //    .HasOne(vvs => vvs.VetService)
+            //    .WithMany(vs => vs.VeterinaryVetServices)
+            //    .HasForeignKey(vvs => vvs.VetServiceId);
         }
     }
 }

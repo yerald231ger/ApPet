@@ -45,6 +45,7 @@ namespace ApPet.Controllers
         }
 
         // GET: VetServices/Create
+        [HttpGet("VetServices/Create/{idVeterinary:int}")]
         public IActionResult Create(int idVeterinary)
         {
             ViewBag.IdVeterinary = idVeterinary;
@@ -67,8 +68,8 @@ namespace ApPet.Controllers
                     Price = model.Price,
                     ShowPrice = model.ShowPrice
                 });
-
-                vetService.VeterinaryVetServices.Add(new VeterinaryVetService { VeterinaryId = model.IdVeterinary, VetServiceId = vetService.Id });
+                //var vetVetservices = new VeterinaryVetService { VeterinaryId = model.IdVeterinary, VetServiceId = vetService.Id };
+                //vetService.VeterinaryVetServices.Add(vetVetservices);
                 await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Index));
             }
