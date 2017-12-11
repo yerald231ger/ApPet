@@ -68,8 +68,8 @@ namespace ApPet.Controllers
                     Price = model.Price,
                     ShowPrice = model.ShowPrice
                 });
-                //var vetVetservices = new VeterinaryVetService { VeterinaryId = model.IdVeterinary, VetServiceId = vetService.Id };
-                //vetService.VeterinaryVetServices.Add(vetVetservices);
+                var vetVetservices = new VeterinaryVetService { VeterinaryId = model.IdVeterinary, VetServiceId = vetService.Id };
+                vetService.VeterinaryVetServices.Add(vetVetservices);
                 await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Index));
             }
