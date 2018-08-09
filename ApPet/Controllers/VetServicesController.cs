@@ -64,12 +64,12 @@ namespace ApPet.Controllers
                 var vetService = await _unitOfWork.VetServices.CreateAsync(new VetService
                 {
                     Description = model.Description,
-                    Name = model.Name,
+                    //Name = model.Name,
                     Price = model.Price,
                     ShowPrice = model.ShowPrice
                 });
-                var vetVetservices = new VeterinaryVetService { VeterinaryId = model.IdVeterinary, VetServiceId = vetService.Id };
-                vetService.VeterinaryVetServices.Add(vetVetservices);
+                //var vetVetservices = new VeterinaryVetService { VeterinaryId = model.IdVeterinary, VetServiceId = vetService.Id };
+                //vetService.VeterinaryVetServices.Add(vetVetservices);
                 await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Index));
             }

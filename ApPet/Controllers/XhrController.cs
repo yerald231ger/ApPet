@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.Authorization;
 using ApPet.Services;
 using ApPet.Models;
 using ApPet.Models.XhrViewModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ApPet.Controllers
 {
     [Route("xhr")]
+    [Authorize(AuthenticationSchemes =
+    JwtBearerDefaults.AuthenticationScheme)]
     [Produces("application/json")]
     public class XhrController : Controller
     {

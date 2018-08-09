@@ -73,7 +73,7 @@ namespace ApPet.Controllers
                     Latitud = (float)veterinary.Latitud,
                     Longitud = (float)veterinary.Longitud,
                     ImageProfileId = veterinary.ImageProfileId,
-                    Name = veterinary.Name
+                    //Name = veterinary.Name
                 });
                 await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Index));

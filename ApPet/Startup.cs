@@ -61,6 +61,7 @@ namespace ApPet
                   };
               });
 
+
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IPetTypeRepository, PetTypeRepository>();
