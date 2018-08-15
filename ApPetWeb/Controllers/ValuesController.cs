@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApPet.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,11 +8,17 @@ using System.Web.Http;
 
 namespace ApPetWeb.Controllers
 {
-    [Authorize]
     public class ValuesController : ApiController
     {
+        public IPetRepository PetRepository { get; }
+
+        public ValuesController(IPetRepository petRepository) 
+        {
+            PetRepository = petRepository;
+        }
+
         // GET api/values
-        public IEnumerable<string> Get()
+        public IEnumerable<string> Get(IPetRepository petRepository)
         {
             return new string[] { "value1", "value2" };
         }
