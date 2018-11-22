@@ -1,4 +1,3 @@
-using ApPet.Services;
 using System;
 
 using Unity;
@@ -42,8 +41,7 @@ namespace ApPetWeb
             // container.LoadConfiguration();
 
             // TODO: Register your type's mappings here.
-            container.RegisterType<IPetRepository, PetRepository>();
-            container.RegisterType<IPaisesRepository, PaisesRepository>();
+            // container.RegisterType<IProductRepository, ProductRepository>();
         }
     }
 }
